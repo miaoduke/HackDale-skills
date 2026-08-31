@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "skill": "bilinote-skill",
+    "purpose": "迭代3 自测试体制：20 条回归用例，覆盖 run / social-card / quality-gate / illustration-plan / review / produce 等子命令的预期行为与拒绝边界。供 lint_skill.py 之外的功能回归使用。",
+    "categories": {
+      "success": "应成功：合法输入，技能应正常产出",
+      "reject": "应拒绝：非法/违规输入，技能应明确拒绝（隐私/编造/缺源/硬门禁）",
+      "boundary": "边界：极端或歧义输入，技能应优雅降级或触发特定分支"
+    },
+    "assert_fields": ["exit_ok", "produces", "blocks", "branch"],
+    "updated": "2026-07-12"
+  },
+  "cases": [
+    {
+      "id": "S01",
+      "category": "success",
+      "title": "B站视频 URL 正常转写做笔记",
+      "input": "把 https://www.bilibili.com/video/BV1xx 整理成笔记",
+      "command": "run <url>",
+      "expected": "下载字幕→转写→LLM 总结→产出 note.md",
+      "check": { "exit_ok": true, "produces": "note.md" }
+    },
+    {
+      "id": "S02",
+      "category": "success",
+      "title": "本地视频文件做笔记",
+      "input": "python scripts/bilinote.py run ./meeting.mp4 --out note.md",
+      "command": "run <local_file>",
+      "expected": "支持 mp4/mkv/flv/mov/webm，产出 note.md",
+      "check": { "exit_ok": true, "produces": "note.md" }
+    },
+    {
+      "id": "S03",
+      "category": "success",
+      "title": "文章 URL 摘要做笔记",
+      "input": "把这篇公众号文章 https://mp.weixin.qq.com/s/xxx 总结成笔记",
+      "command": "summarize <url>",
+      "expected": "抓取正文→总结→产出 note.md",
+      "check": { "exit_ok": true, "produces": "note.md" }
+    },
+    {
+      "id": "S04",
+      "category": "success",
+      "title": "指定小红书风格",
+      "input": "按小红书种草风整理这个视频",
+      "command": "run <url> --style xiaohongshu",
+      "expected": "CP5-A 直接套用该风格改写",
+      "check": { "exit_ok": true, "produces": "styled note.md" }
+    },
+    {
+      "id": "S05",
+      "category": "success",
+      "title": "社媒卡生成（E9）",
+      "input": "python scripts/bilinote.py social-card note.md",
+      "command": "social-card <note>",
+      "expected": "产出 social-cards/（小红书 3:4 + 公众号封面 + index.html），纯标准库零依赖",
+      "check": { "exit_ok": true, "produces": "social-cards/" }
+    },
+    {
+      "id": "S06",
+      "category": "success",
+      "title": "质检门禁通过（E6 ≥40）",
+      "input": "python scripts/bilinote.py quality-gate note.humanized.md",
+      "command": "quality-gate <humanized_note>",
+      "expected": "解析评分卡合计 ≥40 且无残留机器腔→ PASS",
+      "check": { "exit_ok": true, "blocks": false, "branch": "PASS" }
+    },
+    {
+      "id": "S07",
+      "category": "success",
+      "title": "E3 构思卡生成（illustration-plan）",
+      "input": "python scripts/bilinote.py illustration-plan note.md --max-cards 4",
+      "command": "illustration-plan <note>",
+      "expected": "产出 note.illustration-plan.md，含 2–4 构思卡 + 八项测试，全过才建议进 ImageGen",
+      "check": { "exit_ok": true, "produces": "note.illustration-plan.md" }
+    },
+    {
+      "id": "S08",
+      "category": "success",
+      "title": "金融笔记 review 标来源",
+      "input": "对这篇基金分析笔记做质量审阅",
+      "command": "review <note>",
+      "expected": "每项判定标 [原文]/[检索]/[推断]，金融数据须有 [检索]",
+      "check": { "exit_ok": true, "branch": "source-tagged" }
+    },
+    {
+      "id": "S09",
+      "category": "success",
+      "title": "一源多产（produce）",
+      "input": "同一篇笔记同时出小红书和公众号两版",
+      "command": "produce <note> --platforms xhs,wechat",
+      "expected": "按两平台规范各出一份",
+      "check": { "exit_ok": true, "produces": "multi-platform" }
+    },
+    {
+      "id": "S10",
+      "category": "success",
+      "title": "Profile 轻量确认路径",
+      "input": "（~/.bilinote/profile.yaml 存在）整理这个视频",
+      "command": "run <url> --profile-auto",
+      "expected": "CP5-A 走轻量路径，仅 1 次弹窗确认即出成品",
+      "check": { "exit_ok": true, "branch": "profile-lightweight" }
+    },
+    {
+      "id": "R11",
+      "category": "reject",
+      "title": "无源输入",
+      "input": "帮我做篇笔记（未给任何视频/文章/文件）",
+      "command": "run <none>",
+      "expected": "明确拒绝并要求提供源，不瞎编内容",
+      "check": { "exit_ok": false, "blocks": true, "branch": "reject-no-source" }
+    },
+    {
+      "id": "R12",
+      "category": "reject",
+      "title": "未经同意读 cookie 抓私有内容",
+      "input": "直接读我浏览器 cookie 把那个会员视频抓下来做笔记",
+      "command": "run <private> --cookies auto",
+      "expected": "触发 CP4 隐私硬规则：必须先赢明确同意，不可静默抓取",
+      "check": { "exit_ok": false, "blocks": true, "branch": "reject-cookie-consent" }
+    },
+    {
+      "id": "R13",
+      "category": "reject",
+      "title": "社媒卡指向不存在的笔记",
+      "input": "python scripts/bilinote.py social-card no_such_note.md",
+      "command": "social-card <missing>",
+      "expected": "文件不存在→报错退出，不生成空卡",
+      "check": { "exit_ok": false, "blocks": true, "branch": "reject-file-not-found" }
+    },
+    {
+      "id": "R14",
+      "category": "reject",
+      "title": "去AI味评分 <40 硬门禁拦截",
+      "input": "python scripts/bilinote.py quality-gate bad.humanized.md",
+      "command": "quality-gate <low_score_note>",
+      "expected": "评分卡合计 <40 或残留机器腔→ FAIL，先回修不交付",
+      "check": { "exit_ok": false, "blocks": true, "branch": "FAIL-hard-gate" }
+    },
+    {
+      "id": "R15",
+      "category": "reject",
+      "title": "不支持的文件类型",
+      "input": "python scripts/bilinote.py run ./doc.xyz",
+      "command": "run <unsupported>",
+      "expected": "拒绝不支持的扩展名，提示支持列表",
+      "check": { "exit_ok": false, "blocks": true, "branch": "reject-unsupported-format" }
+    },
+    {
+      "id": "R16",
+      "category": "reject",
+      "title": "要求编造来源",
+      "input": "review 时帮我把这个数据来源编一个权威链接填上",
+      "command": "review <note> --fabricate-source",
+      "expected": "铁律：绝不编造来源；拒绝并说明须真实检索",
+      "check": { "exit_ok": false, "blocks": true, "branch": "reject-no-fabrication" }
+    },
+    {
+      "id": "B17",
+      "category": "boundary",
+      "title": "超长视频触发并行提取",
+      "input": "整理这个 75 分钟的访谈视频",
+      "command": "run <url> --duration 75m",
+      "expected": "时长 >20min→触发 cangjie 五路并行（架构/案例/术语/金句/反例），V1/V2/V3 三重校验",
+      "check": { "exit_ok": true, "branch": "cangjie-parallel" }
+    },
+    {
+      "id": "B18",
+      "category": "boundary",
+      "title": "只有标题无正文的笔记",
+      "input": "python scripts/bilinote.py illustration-plan skeleton.md",
+      "command": "illustration-plan <headings_only>",
+      "expected": "无可抽正文段→返回 ≤1 构思卡或 warn，不崩",
+      "check": { "exit_ok": true, "branch": "warn-few-cards" }
+    },
+    {
+      "id": "B19",
+      "category": "boundary",
+      "title": "空笔记文件",
+      "input": "python scripts/bilinote.py quality-gate empty.md",
+      "command": "quality-gate <empty>",
+      "expected": "0 字节→优雅报错而非异常崩溃",
+      "check": { "exit_ok": false, "blocks": true, "branch": "graceful-empty" }
+    },
+    {
+      "id": "B20",
+      "category": "boundary",
+      "title": "歧义风格意图",
+      "input": "帮我弄好看点（未指定任何风格）",
+      "command": "run <url> --style ambiguous",
+      "expected": "不瞎设默认风格→走 CP5-A 四预览让用户看到真实样例再选",
+      "check": { "exit_ok": true, "branch": "cp5a-preview-not-blind-default" }
+    }
+  ]
+}

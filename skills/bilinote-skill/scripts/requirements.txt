@@ -1,0 +1,32 @@
+# Minimal dependencies for the bilinote skill (BiliNote-style, no RAG).
+# Install into the managed venv:
+#   python -m venv venv && venv/bin/pip install -r requirements.txt
+# A system ffmpeg binary is ALSO required (not a pip package):
+#   macOS: brew install ffmpeg | Ubuntu: apt install ffmpeg | Windows: https://ffmpeg.org
+
+yt-dlp>=2025.3.31
+faster-whisper>=1.1.1
+requests>=2.32.3
+
+# NOTE: 本技能始终运行于 agent-native 模式——最终笔记 / 改写 / 质检 / 配图简报
+# 均由宿主 agent 自身的 LLM 生成，不调用任何外部 LLM API，故无 openai / groq 依赖。
+# E3/E4 配图由宿主 agent 提供的「图像生成工具」（如 WorkBuddy 的 ImageGen）完成，
+# 属运行时能力而非 pip 依赖，此处不列。
+
+# Article / web scraping (scrape_article). trafilatura is the preferred
+# extractor; beautifulsoup4 is the mandatory fallback when it is absent.
+trafilatura>=1.12.0
+beautifulsoup4>=4.12.0
+
+# Document reading (read_document): .pdf and .docx parsing.
+pypdf>=4.0.0
+python-docx>=1.1.0
+# textract (optional) enables legacy .doc; install manually if needed:
+#   pip install textract   (also needs system antiword/libreoffice for .doc)
+
+# Export (PDF / Word) — pure-Python, no LaTeX/Office install required
+markdown-pdf>=1.7
+
+# Image handling for export: slicing over-tall article infographics so PDF/DOCX
+# render them fully instead of crushing/clipping.
+pillow>=10.0.0

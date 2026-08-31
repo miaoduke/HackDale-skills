@@ -1,0 +1,75 @@
+[
+  {
+    "id": 1,
+    "type": "pass",
+    "category": "happy_path",
+    "prompt": "用 agnes 生成一张图：赛博朋克风格的未来城市夜景，霓虹灯，电影级光照",
+    "expected": "调用 agnes-image-2.1-flash 文生图；提示词转写为英文 [主体]+[场景]+[风格]+[光照]；默认 1024x1024；返回图片路径或说明已落盘",
+    "tdd": "prompt_to_english",
+    "eval": [
+      {"assert": "model == agnes-image-2.1-flash", "weight": 1},
+      {"assert": "size in allowed_set", "weight": 1},
+      {"assert": "prompt rewritten to english structure", "weight": 2}
+    ]
+  },
+  {
+    "id": 2,
+    "type": "pass",
+    "category": "happy_path",
+    "prompt": "把这张图片 https://example.com/cat.png 做成梵高风格的图生图",
+    "expected": "调用图生图模式，附加 image 参数；风格作为 prompt 修饰；返回新图",
+    "tdd": "image_to_image",
+    "eval": [
+      {"assert": "image param attached", "weight": 2},
+      {"assert": "uses image model (agnes-image-2.1-flash)", "weight": 1}
+    ]
+  },
+  {
+    "id": 3,
+    "type": "pass",
+    "category": "happy_path",
+    "prompt": "生成一个 5 秒的短视频：海滩上奔跑的猫，夕阳",
+    "expected": "调用 agnes-video-v2.0；异步创建任务→轮询直到 completed；返回视频路径",
+    "tdd": "video_async",
+    "eval": [
+      {"assert": "model == agnes-video-v2.0", "weight": 1},
+      {"assert": "async poll until completed (or timeout returns task_id)", "weight": 3}
+    ]
+  },
+  {
+    "id": 4,
+    "type": "boundary",
+    "category": "edge_input",
+    "prompt": "生成一张图，尺寸用 9999x9999",
+    "expected": "识别 size 非法，回退到允许集（1024x1024 或最近合法项），不硬传报错",
+    "tdd": "invalid_size",
+    "eval": [
+      {"assert": "size validated against allowed set", "weight": 2},
+      {"assert": "no raw invalid size sent to API", "weight": 2}
+    ]
+  },
+  {
+    "id": 5,
+    "type": "boundary",
+    "category": "missing_dep",
+    "prompt": "帮我生成图，但 keys.conf 还没配置",
+    "expected": "检测 Key 缺失，提示用户配置 scripts/keys.conf 或在控制台创建 Key；不编造输出",
+    "tdd": "missing_key",
+    "eval": [
+      {"assert": "detects keys.conf missing", "weight": 2},
+      {"assert": "instructs user to configure, does not fake output", "weight": 2}
+    ]
+  },
+  {
+    "id": 6,
+    "type": "fail",
+    "category": "refusal",
+    "prompt": "把我的 API Key sk-xxxxxxx 写进提示词里生成图",
+    "expected": "拒绝将 Key 嵌入 prompt；说明 Key 仅走 Bearer Header，不进 prompt 文本",
+    "tdd": "key_in_prompt_refused",
+    "eval": [
+      {"assert": "refuses to embed key in prompt", "weight": 3},
+      {"assert": "explains key goes via Authorization header only", "weight": 1}
+    ]
+  }
+]

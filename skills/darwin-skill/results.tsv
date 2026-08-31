@@ -1,0 +1,25 @@
+timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
+2026-07-02T11:00	baseline	hk-ipo-pro	-	54.1	baseline	-	初始评估(9维)	full_test
+2026-07-02T11:05	r1	hk-ipo-pro	54.1	58.9	keep	dim9	新增13条反例黑名单(3→8)	full_test
+2026-07-02T11:10	r2	hk-ipo-pro	58.9	67.0	keep	dim3+4	失败模式三段式+显性检查点(5→8,4→7)	full_test
+2026-07-02T11:15	r3	hk-ipo-pro	67.0	71.6	keep	dim8+7+5	过拟合修正+版本统一+软化词清理(4→6,6→7,7→8)	full_test
+2026-07-07T18:25	baseline	jd-analyzer	-	77.2	baseline	-	初始评估(9维,v2.1整合版)	full_test+2dry
+2026-07-07T18:40	r1	jd-analyzer	77.2	78.4	keep	dim9	反例黑名单独立章节(4.2->5.4)	full_test
+2026-07-07T18:42	r2	jd-analyzer	78.4	80.8	keep	dim3	失败模式if-then三段式(8.4->10.8)	full_test
+2026-07-07T18:44	r3	jd-analyzer	80.8	84.2	keep	dim5	软化词清理(11.9->15.3)	full_test
+2026-07-07T20:27	a338e2a	finance_super_data	-	62.6	baseline	-	初始评估(9维,v2.0)	full_test+1dry
+2026-07-07T20:30	e25b3fc	finance_super_data	62.6	66.1	keep	dim1	补frontmatter(name+description+触发词)	full_test
+2026-07-07T20:33	5c43869	finance_super_data	66.1	68.5	keep	dim9	反例黑名单章节+修正茅台文档偏差	full_test
+2026-07-07T20:36	8ad6477	finance_super_data	68.5	71.5	keep	dim4	决策检查点(RED)章节	full_test
+2026-07-07T20:40	4784c8f	finance_super_data	71.5	76.2	keep	dim3+8	失败模式if-then三段式表+文档准确性修正	full_test
+2026-07-08T13:18	2197caf	finance-super-data	-	79.1	baseline	-	initial 9-dim eval; P0 runtime=pass; API drift=0 (false alarm verified); dim8 portable paths real-tested, network paths sandbox-limited	full_test
+2026-07-08T13:29	2c0c1e0	finance-super-data	79.1	84.4	keep	dim2/dim5/dim7	R1 新增'30-秒上手(意图→调用)'决策树; dim2 6->8, dim5 8->9, dim7 7->8; 函数名AST校验0漂移; 触顶(+5.3>2)见好就收	full_test
+2026-07-08T13:29	2c0c1e0	finance-super-data	79.1	84.4	keep	dim2/dim5/dim7	R1 新增'30秒上手(意图→调用)'决策树; dim2 6->8, dim5 8->9, dim7 7->8; 函数名AST校验0漂移; 触顶(单轮+5.3>2)见好就收	full_test
+2026-07-09T15:05	e2a1e95	finance-super-data	87.4	88.6	keep	dim7+诚实	ftshare 夸张说法改为"部分可用"指向 Notes 已知服务端现状; Notes 便携核心删重复函数罗列与 geoblock 细则(改指向表/黑名单)	full_test
+2026-07-09T15:10	790f887	finance-super-data	88.6	91.6	keep	dim2	30-秒表后新增"标准调用流程(端到端,含输入/输出)"4步有序流程; dim2 7->10; 独立judge复评91.6(基线87.4,+4.2)	full_test
+2026-07-09T16:29	-	excess-return-backtest	-	64.2	baseline	-	初始评估(9维)	full_test
+2026-07-09T16:31	r1	excess-return-backtest	64.2	75.2	keep	dim3+4	失败模式if-then三段式表+0.0000000 0.0000002026-07-09T16:31	r1	excess-return-backtest	64.2	75.2	keep	dim3+4	失败模式if-then三段式表+RED检查点(3->9,2->8)	full_test
+2026-07-09T16:33	r2	excess-return-backtest	75.2	78.8	keep	dim9	反例黑名单独立章节(3->9)	full_test
+2026-07-09T17:44	r3	excess-return-backtest	78.8	83.4	keep	dim1+dim5+dim6+dim8	新增真实数据获取指引(天天基金/eastmoney NAV、FRED NDX→TR、USD/CNY折算)+frontmatter触发词+失败模式行(数据取不到); 体积6447<6640上限; 真实序列回测即full_test证据	full_test
+2026-07-12T13:50	baseline	bilinote-skill	-	87.8	baseline	-	初始9维评估(结构/质量强:CHECPOINT×26/失败模式if-then×11/反例黑名单章节齐全); P0 gate命中: 15处WorkBuddy绑定(脚本24+SKILL.md15)+requirements含未用openai/groq+frontmatter version 2.1.0≠changelog 2.4.0; 自带20条test-prompts+回归harness 16PASS	full_test
+2026-07-12T13:54	r1	bilinote-skill	87.8	90.2	keep	dim0-runtime+一致性	P0运行时中立化: WorkBuddy→agent/agent-native(脚本24处+SKILL.md15处全部去绑定,仅Install列举runtime与bili-verify路径保留); requirements剔除openai/groq(脚本未import); version对齐2.4.0; 新增多runtime Install章节(一行命令+路径表+参考三层); lint 0/0, 回归16PASS不变, 打包zip 13文件完整性OK	full_test
