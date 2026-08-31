@@ -17,12 +17,12 @@ Replace every real value with an obvious placeholder (keep the placeholder ident
 
 | Real value 真实值 | Placeholder 占位符 |
 |---|---|
-| Windows username (`C:\Users\d6150`) | `<USER>` |
+| Windows username (`C:\Users\<realuser>`) | `<USER>` |
 | Linux/macOS username | `<USER>` |
-| hostname (`hackdale-Aspire-A615-51G`) | `<HOSTNAME>` |
-| Windows C-drive partition UUID (`DE063C...`) | `<WIN_C_UUID>` |
+| hostname (e.g. `<olden-model>-<host>`) | `<HOSTNAME>` |
+| Windows C-drive partition UUID (`DE06...`) | `<WIN_C_UUID>` |
 | data-disk partition UUID | `<DATA_PART_UUID>` |
-| plaintext passwords (even pure-numeric like `334475`) | `<REDACTED_PASSWORD>` |
+| plaintext passwords (even pure-numeric like `3344...`) | `<REDACTED_PASSWORD>` |
 | password/salt/AES-key sentinels in code | `<REDACTED_PWD_SALT>` |
 | IP addresses, MAC addresses | `<IP>` / `<MAC>` |
 | email addresses | `<EMAIL>` |
