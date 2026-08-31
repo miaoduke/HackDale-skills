@@ -1,0 +1,24 @@
+# Local private / not-to-upload
+_private/
+_private_不上传/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Sensitive local data
+*.log
+.env
+.env.*
+secrets*
+credentials*
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Git
+*.bundle
